@@ -1,193 +1,93 @@
-﻿#include<iostream>
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-#include<stb/stb_image.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <cmath>
 
-#include<glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
-#include<glm/gtc/type_ptr.hpp>
+int main(int argc, char* argv[]) {
+	SDL_Init(SDL_INIT_VIDEO);
 
-#include "Texture.h"
-#include"shaderClass.h"
-#include"VAO.h"
-#include"VBO.h"
-#include"EBO.h"
+	SDL_Window* window = SDL_CreateWindow("Images", 800, 600, 0);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
 
+	SDL_Surface* surface = IMG_Load("C:/Users/banko/OneDrive/Desktop/TODAY'S 13th REASON/IMG_1525 (1).jpg");
+	SDL_Surface* surface1 = IMG_Load("C:/Users/banko/OneDrive/Desktop/TODAY'S 13th REASON/Photo_1755722219899.jpg");
+	SDL_Surface* surface2 = IMG_Load("C:/Users/banko/OneDrive/Desktop/TODAY'S 13th REASON/Photo_1766403866299.jpg");
+	SDL_Surface* surface3 = IMG_Load("C:/Users/banko/OneDrive/Desktop/TODAY'S 13th REASON/IMG_0581 (1).jpg");
 
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_Texture* texture1 = SDL_CreateTextureFromSurface(renderer, surface1);
+	SDL_Texture* texture2 = SDL_CreateTextureFromSurface(renderer, surface2);
+	SDL_Texture* texture3 = SDL_CreateTextureFromSurface(renderer, surface3);
 
-// Vertices coordinates
-//GLfloat vertices[] =
-// {//    COORDINATES                                COLORS
-	//-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,     1.0f, 0.9f, 0.7f,  // Lower left  — Red
-	 //0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,     0.0f, 1.0f, 0.0f,  // Lower right — Green
-	 //0.0f,  0.5f * float(sqrt(3)) * 2 / 3, 0.0f,   0.0f, 0.0f, 1.0f,  // Upper       — Blue
-	//-0.25f, 0.5f * float(sqrt(3)) / 6, 0.0f,     0.5f, 0.0f, 0.5f,  // Inner left  — Purple
-	 //0.25f, 0.5f * float(sqrt(3)) / 6, 0.0f,     0.0f, 0.5f, 0.5f,  // Inner right — Teal
-	 //0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,     0.5f, 0.5f, 0.0f   // Inner down  — Olive
-	//COORDINATES            //COLORS         /   TexCoord  //
-	//-0.5f, -0.5f, 0.0f,      1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-	//-0.5f, 0.5f, 0.0f,       0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-	//0.5f, 0.5f, 0.0f,        0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-	//0.5f, -0.5f, 0.0f,       1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-//};
-
-// Vertices coordinates
-GLfloat vertices[] =
-{ //     COORDINATES     /        COLORS      /   TexCoord  //
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	2.5f, 5.0f
-};
-
-// Indices for vertices order
-GLuint indices[] =
-{
-	0, 1, 2,
-	0, 2, 3,
-	0, 1, 4,
-	1, 2, 4,
-	2, 3, 4,
-	3, 0, 4
-	//0, 2, 1,//0, 3, 5, // Lower left triangle
-	//0, 3, 2,//3, 2, 4, // Lower right triangle
-	//5, 4, 1 // Upper triangle
-};
+	SDL_DestroySurface(surface);
+	SDL_DestroySurface(surface1);
+	SDL_DestroySurface(surface2);
+	SDL_DestroySurface(surface3);
+	int width = 100;
+	int height = 100;
 
 
-int main()
-{
-	// Initialize GLFW
-	glfwInit();
+	SDL_FRect top = { 350,   125, width, height }; // full width, top
+	SDL_FRect midL = { 225, 250, width, height }; // left half, middle
+	SDL_FRect midR = { 475, 250, width, height }; // right half, middle
+	SDL_FRect bottom = { 350, 375, width, height }; // full width, bottom
 
-	stbi_set_flip_vertically_on_load(true);
-
-	// Tell GLFW what version of OpenGL we are using 
-	// In this case we are using OpenGL 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	// Tell GLFW we are using the CORE profile
-	// So that means we only have the modern functions
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// Create a GLFWwindow object of 800 by 800 pixels, naming it "YoutubeOpenGL"
-	GLFWwindow* window = glfwCreateWindow(800, 800, "TOBICAM", NULL, NULL);
-	// Error check if the window fails to create
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	// Introduce the window into the current context
-	glfwMakeContextCurrent(window);
-
-	//Load GLAD so it configures OpenGL
-	gladLoadGL();
-	// Specify the viewport of OpenGL in the Window
-	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
-	glViewport(0, 0, 800, 800);
+	SDL_RenderTexture(renderer, texture, NULL, NULL);
+	SDL_RenderPresent(renderer);
 
 
+	SDL_Event event;
+	bool running = true;
 
-	// Generates Shader object using shaders defualt.vert and default.frag
-	Shader shaderProgram("default.vert", "default.frag");
+	float x = 1.0f;
+	float y = 2.0f;
+	float speed = 150.0f;
 
+	Uint64 lastTime = SDL_GetTicks();
 
+	while (running) {
 
-	// Generates Vertex Array Object and binds it
-	VAO VAO1;
-	VAO1.Bind();
+		Uint64 currentTime = SDL_GetTicks();
 
-	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBO1(vertices, sizeof(vertices));
-	// Generates Element Buffer Object and links it to indices
-	EBO EBO1(indices, sizeof(indices));
+		float deltaTime = (currentTime - lastTime) / 1000.0f;
+		lastTime = currentTime;
 
-	// Links VBO attributes such as coordinates and colors to VAO
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	// Unbind all to prevent accidentally modifying them
-	VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
+		//Poll Events
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_EVENT_QUIT) 
+				running = false;
 
-	// If "Channels: 3" → use GL_RGB
-	Texture tex0("20260113_0057.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+			if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE)
+				running = false;
 
-		
-	tex0.texUnit(shaderProgram, "tex0", 0);
+			if (!surface) {
+				SDL_Log("Failed to load image: %s", SDL_GetError());
+				return 1;
+			}
 
-	// Gets ID of uniform called "scale"
-	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
+			x += speed * deltaTime;
+			if (x > 1000) x = 0;
 
-	float rotation = 0.0f;
-	double prevTime = glfwGetTime();
+			y += speed * deltaTime;
+			if (y > 1000) y = 0;
 
-	// Enables the Depth Buffer
-	glEnable(GL_DEPTH_TEST);
-
-	
-	// Main while loop
-	while (!glfwWindowShouldClose(window))
-	{
-		// Specify the color of the background
-		glClearColor(0.67f, 0.03f, 0.87f, 1.0f);
-		// Clean the back buffer and assign the new color to it
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// Tell OpenGL which Shader Program we want to use
-		shaderProgram.Activate();
-		// Assigns a value to the uniform; NOTE: Must always be done after activating the Shader Program
-
-		// Simple timer
-		double crntTime = glfwGetTime();
-		if (crntTime - prevTime >= 1 / 60)
-		{
-			rotation += 0.5f;
-			prevTime = crntTime;
 		}
+		SDL_RenderClear(renderer);
+		SDL_RenderTexture(renderer, texture, NULL, &top);
+		SDL_RenderTexture(renderer, texture1, NULL, &midL);
+		SDL_RenderTexture(renderer, texture2, NULL, &midR);
+		SDL_RenderTexture(renderer, texture3, NULL, &bottom);
 
-
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 proj = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
-		proj = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
-
-		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
-
-
-		glUniform1f(uniID, 0.5f);
-		// Bind the VAO so OpenGL knows to use it
-		VAO1.Bind();
-		tex0.Bind();
-		// Draw primitives, number of indices, datatype of indices, index of indices
-		glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
-		// Swap the back buffer with the front buffer
-		glfwSwapBuffers(window);
-		// Take care of all GLFW events
-		glfwPollEvents();
+		SDL_RenderPresent(renderer);
 	}
 
+	SDL_DestroyTexture(texture);
+	SDL_DestroyTexture(texture1);
+	SDL_DestroyTexture(texture2);
+	SDL_DestroyTexture(texture3);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 
-
-	// Delete all the objects we've created
-	VAO1.Delete();
-	VBO1.Delete();
-	EBO1.Delete();
-	tex0.Delete();
-	shaderProgram.Delete();
-	// Delete window before ending the program
-	glfwDestroyWindow(window);
-	// Terminate GLFW before ending the program
-	glfwTerminate();
 	return 0;
 }
